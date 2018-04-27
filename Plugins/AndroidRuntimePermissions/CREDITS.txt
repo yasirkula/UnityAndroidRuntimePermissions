@@ -1,0 +1,1 @@
+Based on UnityAndroidPermissions (MIT License): https://github.com/Over17/UnityAndroidPermissions
