@@ -2,6 +2,10 @@
 
 ![runtime_permission](Images/permission.png)
 
+**Available on Asset Store:** https://www.assetstore.unity3d.com/en/#!/content/117803
+
+**Forum Thread:** https://forum.unity.com/threads/open-source-androidruntimepermissions-manage-runtime-permissions-synchronously-on-android-m.528833/
+
 *Based on UnityAndroidPermissions (MIT License): https://github.com/Over17/UnityAndroidPermissions*
 
 This plugin helps you query/request runtime permissions **synchronously** on Android M and later. It also works on older Android versions and detects whether a requested permission is declared in AndroidManifest or not.
