@@ -2,12 +2,14 @@ package com.yasirkula.unity;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by yasirkula on 27.04.2018.
@@ -42,7 +44,8 @@ public class RuntimePermissionsFragment extends Fragment
 		else
 		{
 			m_permissions = getArguments().getStringArray( PERMISSIONS );
-			requestPermissions( m_permissions, PERMISSIONS_REQUEST_CODE );
+			if( m_permissions != null )
+				requestPermissions( m_permissions, PERMISSIONS_REQUEST_CODE );
 		}
 	}
 
@@ -55,6 +58,8 @@ public class RuntimePermissionsFragment extends Fragment
 		if( permissionReceiver == null || m_permissions == null )
 		{
 			Log.e( "Unity", "Fragment data got reset while asking permissions!" );
+
+			getFragmentManager().beginTransaction().remove( this ).commit();
 			return;
 		}
 
@@ -101,5 +106,19 @@ public class RuntimePermissionsFragment extends Fragment
 
 		permissionReceiver.OnPermissionResult( result );
 		getFragmentManager().beginTransaction().remove( this ).commit();
+
+		// Resolves a bug in Unity 2019 where the calling activity
+		// doesn't resume automatically after the fragment finishes
+		// Credit: https://stackoverflow.com/a/12409215/2373034
+		try
+		{
+			Intent resumeUnityActivity = new Intent( getActivity(), getActivity().getClass() );
+			resumeUnityActivity.setFlags( Intent.FLAG_ACTIVITY_REORDER_TO_FRONT );
+			getActivity().startActivityIfNeeded( resumeUnityActivity, 0 );
+		}
+		catch( Exception e )
+		{
+			Log.e( "Unity", "Exception (resume):", e );
+		}
 	}
 }
