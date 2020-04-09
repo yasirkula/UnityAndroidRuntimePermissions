@@ -6,6 +6,8 @@
 
 **Forum Thread:** https://forum.unity.com/threads/open-source-androidruntimepermissions-manage-runtime-permissions-synchronously-on-android-m.528833/
 
+**[Support the Developer ☕](https://yasirkula.itch.io/unity3d)**
+
 *Based on UnityAndroidPermissions (MIT License): https://github.com/Over17/UnityAndroidPermissions*
 
 This plugin helps you query/request runtime permissions **synchronously** on Android M and later. It also works on older Android versions and detects whether a requested permission is declared in AndroidManifest or not.
