@@ -89,12 +89,20 @@ public class RuntimePermissionsFragment extends Fragment
 			else
 				resolvedPermissionCount++;
 
-			if( grantResults[i] == PackageManager.PERMISSION_GRANTED )
-				permissionsResult.set( permissionIndex, 1 );
-			else if( !shouldShowRequestPermissionRationale( permission ) )
+			try
+			{
+				if( grantResults[i] == PackageManager.PERMISSION_GRANTED )
+					permissionsResult.set( permissionIndex, 1 );
+				else if( !shouldShowRequestPermissionRationale( permission ) ) // This can cause IllegalArgumentException for undocumented permissions
+					permissionsResult.set( permissionIndex, 0 );
+				else
+					permissionsResult.set( permissionIndex, 2 );
+			}
+			catch( Exception e )
+			{
+				Log.e( "Unity", "Exception:", e );
 				permissionsResult.set( permissionIndex, 0 );
-			else
-				permissionsResult.set( permissionIndex, 2 );
+			}
 		}
 
 		if( resolvedPermissionCount != m_permissions.length )
