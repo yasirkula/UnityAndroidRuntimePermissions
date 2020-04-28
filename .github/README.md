@@ -12,9 +12,19 @@
 
 This plugin helps you query/request runtime permissions **synchronously** on Android M and later. It also works on older Android versions and detects whether a requested permission is declared in AndroidManifest or not.
 
-## How To
+## INSTALLATION
 
-Simply import [RuntimePermissions.unitypackage](https://github.com/yasirkula/UnityAndroidRuntimePermissions/releases) to your project and you are good to go! There is one optional step, though: by default, Unity shows a permission dialog on startup to prevent plugins from crashing/malfunctioning. This can be disabled, if you want; but you must make sure to handle all the runtime permissions carefully in your app's lifecycle. To disable this dialog, add the following line inside the `<application>...</application>` tag of *Plugins/Android/AndroidManifest.xml*:
+There are 4 ways to install this plugin:
+
+- import [RuntimePermissions.unitypackage](https://github.com/yasirkula/UnityAndroidRuntimePermissions/releases) via *Assets-Import Package*
+- clone/[download](https://github.com/yasirkula/UnityAndroidRuntimePermissions/archive/master.zip) this repository and move the *Plugins* folder to your Unity project's *Assets* folder
+- import it from [Asset Store](https://assetstore.unity.com/packages/tools/integration/android-runtime-permissions-117803)
+- *(via Package Manager)* add the following line to *Packages/manifest.json*:
+  - `"com.yasirkula.androidruntimepermissions": "https://github.com/yasirkula/UnityAndroidRuntimePermissions.git",`
+  
+## HOW TO
+
+Before we start, there is one optional step: by default, Unity shows a permission dialog on startup to prevent plugins from crashing/malfunctioning. This can be disabled, if you want; but you must make sure to handle all the runtime permissions carefully in your app's lifecycle. To disable this dialog, add the following line inside the `<application>...</application>` tag of *Plugins/Android/AndroidManifest.xml*:
 
 ```xml
 <meta-data android:name="unityplayer.SkipPermissionsDialog" android:value="true" />
@@ -37,7 +47,7 @@ You can use the following *static* functions of **AndroidRuntimePermissions** to
 
 `void OpenSettings()`: opens the settings for this app, from where the user can manually grant permission(s) in case a needed permission's state is *Permission.Denied*
 
-## Example Code
+## EXAMPLE CODE
 
 The following code requests *WRITE_EXTERNAL_STORAGE* permission (it must be declared in *AndroidManifest*) when bottom-right corner of the screen is touched:
 

@@ -1,0 +1,6 @@
+{
+  "name": "com.yasirkula.androidruntimepermissions",
+  "displayName": "Android Runtime Permissions",
+  "version": "1.1.0",
+  "description": "This plugin helps you query/request runtime permissions synchronously on Android M and later. It also works on older Android versions and detects whether a requested permission is declared in AndroidManifest or not."
+}
