@@ -21,7 +21,9 @@ There are 4 ways to install this plugin:
 - import it from [Asset Store](https://assetstore.unity.com/packages/tools/integration/android-runtime-permissions-117803)
 - *(via Package Manager)* add the following line to *Packages/manifest.json*:
   - `"com.yasirkula.androidruntimepermissions": "https://github.com/yasirkula/UnityAndroidRuntimePermissions.git",`
-  
+- *(via [OpenUPM](https://openupm.com))* after installing [openupm-cli](https://github.com/openupm/openupm-cli), run the following command:
+  - `openupm add com.yasirkula.androidruntimepermissions`
+
 ## HOW TO
 
 Before we start, there is one optional step: by default, Unity shows a permission dialog on startup to prevent plugins from crashing/malfunctioning. This can be disabled, if you want; but you must make sure to handle all the runtime permissions carefully in your app's lifecycle. To disable this dialog, add the following line inside the `<application>...</application>` tag of *Plugins/Android/AndroidManifest.xml*:
