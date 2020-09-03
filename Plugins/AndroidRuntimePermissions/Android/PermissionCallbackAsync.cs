@@ -6,7 +6,7 @@ namespace AndroidRuntimePermissionsNamespace
 	public class PermissionCallbackAsync : AndroidJavaProxy
 	{
 		private readonly string[] permissions;
-		private AndroidRuntimePermissions.PermissionResultMultiple callback;
+		private readonly AndroidRuntimePermissions.PermissionResultMultiple callback;
 		private readonly PermissionCallbackHelper callbackHelper;
 
 		public PermissionCallbackAsync( string[] permissions, AndroidRuntimePermissions.PermissionResultMultiple callback ) : base( "com.yasirkula.unity.RuntimePermissionsReceiver" )
@@ -26,14 +26,11 @@ namespace AndroidRuntimePermissionsNamespace
 			try
 			{
 				if( callback != null )
-				{
 					callback( permissions, AndroidRuntimePermissions.ProcessPermissionRequest( permissions, result ) );
-					callback = null;
-				}
 			}
 			finally
 			{
-				Object.Destroy( callbackHelper );
+				Object.Destroy( callbackHelper.gameObject );
 			}
 		}
 	}
