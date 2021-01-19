@@ -2,5 +2,8 @@
   "name": "com.yasirkula.androidruntimepermissions",
   "displayName": "Android Runtime Permissions",
   "version": "1.1.4",
+  "documentationUrl": "https://github.com/yasirkula/UnityAndroidRuntimePermissions",
+  "changelogUrl": "https://github.com/yasirkula/UnityAndroidRuntimePermissions/releases",
+  "licensesUrl": "https://github.com/yasirkula/UnityAndroidRuntimePermissions/blob/master/LICENSE.txt",
   "description": "This plugin helps you query/request runtime permissions synchronously on Android M and later. It also works on older Android versions and detects whether a requested permission is declared in AndroidManifest or not."
 }
