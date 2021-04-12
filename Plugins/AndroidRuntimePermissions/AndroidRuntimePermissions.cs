@@ -5,7 +5,7 @@
 using System;
 using System.Text;
 using UnityEngine;
-#if IS_ANDROID_PLATFORM
+#if UNITY_ANDROID
 using AndroidRuntimePermissionsNamespace;
 #endif
 
