@@ -6,6 +6,8 @@
 
 **Forum Thread:** https://forum.unity.com/threads/open-source-androidruntimepermissions-manage-runtime-permissions-synchronously-on-android-m.528833/
 
+**Discord:** https://discord.gg/UJJt549AaV
+
 **[Support the Developer ☕](https://yasirkula.itch.io/unity3d)**
 
 *Based on UnityAndroidPermissions (MIT License): https://github.com/Over17/UnityAndroidPermissions*
