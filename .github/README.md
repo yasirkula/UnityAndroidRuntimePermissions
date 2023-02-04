@@ -53,21 +53,21 @@ You can use the following *static* functions of **AndroidRuntimePermissions** to
 
 ## EXAMPLE CODE
 
-The following code requests *READ_EXTERNAL_STORAGE* permission (it must be declared in *AndroidManifest*) when bottom-right corner of the screen is touched:
+The following code requests *ACCESS_FINE_LOCATION* permission (it must be declared in *AndroidManifest*) when bottom-right corner of the screen is touched:
 
 ```csharp
 void Update()
 {
 	if( Input.GetMouseButtonDown( 0 ) && Input.mousePosition.x > Screen.width * 0.8f && Input.mousePosition.y < Screen.height * 0.2f )
 	{
-		AndroidRuntimePermissions.Permission result = AndroidRuntimePermissions.RequestPermission( "android.permission.READ_EXTERNAL_STORAGE" );
+		AndroidRuntimePermissions.Permission result = AndroidRuntimePermissions.RequestPermission( "android.permission.ACCESS_FINE_LOCATION" );
 		if( result == AndroidRuntimePermissions.Permission.Granted )
 			Debug.Log( "We have permission to read from external storage!" );
 		else
 			Debug.Log( "Permission state: " + result );
 		
-		// Requesting READ_EXTERNAL_STORAGE and CAMERA permissions simultaneously
-		//AndroidRuntimePermissions.Permission[] result = AndroidRuntimePermissions.RequestPermissions( "android.permission.READ_EXTERNAL_STORAGE", "android.permission.CAMERA" );
+		// Requesting ACCESS_FINE_LOCATION and CAMERA permissions simultaneously
+		//AndroidRuntimePermissions.Permission[] result = AndroidRuntimePermissions.RequestPermissions( "android.permission.ACCESS_FINE_LOCATION", "android.permission.CAMERA" );
 		//if( result[0] == AndroidRuntimePermissions.Permission.Granted && result[1] == AndroidRuntimePermissions.Permission.Granted )
 		//	Debug.Log( "We have all the permissions!" );
 		//else
