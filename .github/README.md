@@ -8,7 +8,7 @@
 
 **Discord:** https://discord.gg/UJJt549AaV
 
-**[Support the Developer ☕](https://yasirkula.itch.io/unity3d)**
+**[GitHub Sponsors ☕](https://github.com/sponsors/yasirkula)**
 
 *Based on UnityAndroidPermissions (MIT License): https://github.com/Over17/UnityAndroidPermissions*
 
