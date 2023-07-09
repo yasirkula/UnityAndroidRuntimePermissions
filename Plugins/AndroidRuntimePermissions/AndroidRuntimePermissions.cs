@@ -3,7 +3,9 @@
 #endif
 
 using System;
-using System.Text;
+#if UNITY_2018_4_OR_NEWER && !ANDROID_RUNTIME_PERMISSIONS_DISABLE_ASYNC_FUNCTIONS
+using System.Threading.Tasks;
+#endif
 using UnityEngine;
 #if UNITY_ANDROID
 using AndroidRuntimePermissionsNamespace;
@@ -13,8 +15,7 @@ public static class AndroidRuntimePermissions
 {
 	public enum Permission { Denied = 0, Granted = 1, ShouldAsk = 2 };
 
-	public delegate void PermissionResult( string permission, Permission result );
-	public delegate void PermissionResultMultiple( string[] permissions, Permission[] result );
+	internal delegate void AsyncPermissionResult( Permission[] result );
 
 	#region Native Properties
 #if IS_ANDROID_PLATFORM
@@ -59,50 +60,33 @@ public static class AndroidRuntimePermissions
 #endif
 	}
 
-	public static Permission CheckPermission( string permission )
+	public static bool CheckPermission( string permission )
 	{
-#if IS_ANDROID_PLATFORM
 		return CheckPermissions( permission )[0];
-#else
-		return Permission.Granted;
-#endif
 	}
 
-	public static Permission[] CheckPermissions( params string[] permissions )
+	public static bool[] CheckPermissions( params string[] permissions )
 	{
 		ValidateArgument( permissions );
 
 #if IS_ANDROID_PLATFORM
 		string resultRaw = AJC.CallStatic<string>( "CheckPermission", permissions, Context );
 		if( resultRaw.Length != permissions.Length )
-		{
-			Debug.LogError( "CheckPermissions: something went wrong" );
-			return null;
-		}
+			throw new Exception( "CheckPermissions: something went wrong" );
 
-		Permission[] result = new Permission[permissions.Length];
+		bool[] result = new bool[permissions.Length];
 		for( int i = 0; i < result.Length; i++ )
-		{
-			Permission _permission = resultRaw[i].ToPermission();
-			if( _permission == Permission.Denied && GetCachedPermission( permissions[i], Permission.ShouldAsk ) != Permission.Denied )
-				_permission = Permission.ShouldAsk;
-
-			result[i] = _permission;
-		}
+			result[i] = resultRaw[i].ToPermission() == Permission.Granted;
 
 		return result;
 #else
-		return GetDummyResult( permissions );
+		return GetDummyResult( permissions, true );
 #endif
 	}
 
 	public static Permission RequestPermission( string permission )
 	{
-#if IS_ANDROID_PLATFORM
 		return RequestPermissions( permission )[0];
-#else
-		return Permission.Granted;
-#endif
 	}
 
 	public static Permission[] RequestPermissions( params string[] permissions )
@@ -115,95 +99,52 @@ public static class AndroidRuntimePermissions
 		lock( threadLock )
 		{
 			nativeCallback = new PermissionCallback( threadLock );
-			AJC.CallStatic( "RequestPermission", permissions, Context, nativeCallback, GetCachedPermissions( permissions ) );
+			AJC.CallStatic( "RequestPermission", permissions, Context, nativeCallback, new string( (char) ( '0' + (int) Permission.ShouldAsk ), permissions.Length ) );
 
 			if( nativeCallback.Result == null )
 				System.Threading.Monitor.Wait( threadLock );
 		}
 
-		return ProcessPermissionRequest( permissions, nativeCallback.Result );
+		return ProcessPermissionRequestResult( permissions, nativeCallback.Result );
 #else
-		return GetDummyResult( permissions );
+		return GetDummyResult( permissions, Permission.Granted );
 #endif
 	}
 
-	private static void RequestPermissionAsync( string permission, PermissionResult callback )
+#if UNITY_2018_4_OR_NEWER && !ANDROID_RUNTIME_PERMISSIONS_DISABLE_ASYNC_FUNCTIONS
+	public static async Task<Permission> RequestPermissionAsync( string permission )
 	{
-#if IS_ANDROID_PLATFORM
-		RequestPermissionsAsync( new string[1] { permission }, ( permissions, result ) =>
-		{
-			if( callback != null )
-				callback( permissions[0], result[0] );
-		} );
-#else
-		if( callback != null )
-			callback( permission, Permission.Granted );
-#endif
+		return ( await RequestPermissionsAsync( permission ) )[0];
 	}
 
-	private static void RequestPermissionsAsync( string[] permissions, PermissionResultMultiple callback )
+	public static Task<Permission[]> RequestPermissionsAsync( params string[] permissions )
 	{
 		ValidateArgument( permissions );
 
 #if IS_ANDROID_PLATFORM
-		PermissionCallbackAsync nativeCallback = new PermissionCallbackAsync( permissions, callback );
-		AJC.CallStatic( "RequestPermission", permissions, Context, nativeCallback, GetCachedPermissions( permissions ) );
+		TaskCompletionSource<Permission[]> tcs = new TaskCompletionSource<Permission[]>();
+		PermissionCallbackAsync nativeCallback = new PermissionCallbackAsync( permissions, ( result ) => tcs.SetResult( result ) );
+		AJC.CallStatic( "RequestPermission", permissions, Context, nativeCallback, new string( (char) ( '0' + (int) Permission.ShouldAsk ), permissions.Length ) );
+
+		return tcs.Task;
 #else
-		if( callback != null )
-			callback( permissions, GetDummyResult( permissions ) );
+		return Task.FromResult( GetDummyResult( permissions, Permission.Granted ) );
 #endif
 	}
+#endif
 	#endregion
 
 	#region Helper Functions
-	public static Permission[] ProcessPermissionRequest( string[] permissions, string resultRaw )
+	internal static Permission[] ProcessPermissionRequestResult( string[] permissions, string resultRaw )
 	{
 		if( resultRaw.Length != permissions.Length )
-		{
-			Debug.LogError( "RequestPermissions: something went wrong" );
-			return null;
-		}
+			throw new Exception( "RequestPermissions: something went wrong" );
 
-		bool shouldUpdateCache = false;
 		Permission[] result = new Permission[permissions.Length];
 		for( int i = 0; i < result.Length; i++ )
-		{
-			Permission _permission = resultRaw[i].ToPermission();
-			result[i] = _permission;
-
-			if( CachePermission( permissions[i], _permission ) )
-				shouldUpdateCache = true;
-		}
-
-		if( shouldUpdateCache )
-			PlayerPrefs.Save();
+			result[i] = resultRaw[i].ToPermission();
 
 		return result;
-	}
-
-	private static Permission GetCachedPermission( string permission, Permission defaultValue )
-	{
-		return (Permission) PlayerPrefs.GetInt( "ARTP_" + permission, (int) defaultValue );
-	}
-
-	private static string GetCachedPermissions( string[] permissions )
-	{
-		StringBuilder cachedPermissions = new StringBuilder( permissions.Length );
-		for( int i = 0; i < permissions.Length; i++ )
-			cachedPermissions.Append( (int) GetCachedPermission( permissions[i], Permission.ShouldAsk ) );
-
-		return cachedPermissions.ToString();
-	}
-
-	private static bool CachePermission( string permission, Permission value )
-	{
-		if( PlayerPrefs.GetInt( "ARTP_" + permission, -1 ) != (int) value )
-		{
-			PlayerPrefs.SetInt( "ARTP_" + permission, (int) value );
-			return true;
-		}
-
-		return false;
 	}
 
 	private static void ValidateArgument( string[] permissions )
@@ -218,11 +159,11 @@ public static class AndroidRuntimePermissions
 		}
 	}
 
-	private static Permission[] GetDummyResult( string[] permissions )
+	private static T[] GetDummyResult<T>( string[] permissions, T value )
 	{
-		Permission[] result = new Permission[permissions.Length];
+		T[] result = new T[permissions.Length];
 		for( int i = 0; i < result.Length; i++ )
-			result[i] = Permission.Granted;
+			result[i] = value;
 
 		return result;
 	}

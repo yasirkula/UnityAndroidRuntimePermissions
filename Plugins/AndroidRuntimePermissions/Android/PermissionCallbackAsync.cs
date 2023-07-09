@@ -6,10 +6,10 @@ namespace AndroidRuntimePermissionsNamespace
 	public class PermissionCallbackAsync : AndroidJavaProxy
 	{
 		private readonly string[] permissions;
-		private readonly AndroidRuntimePermissions.PermissionResultMultiple callback;
+		private readonly AndroidRuntimePermissions.AsyncPermissionResult callback;
 		private readonly PermissionCallbackHelper callbackHelper;
 
-		public PermissionCallbackAsync( string[] permissions, AndroidRuntimePermissions.PermissionResultMultiple callback ) : base( "com.yasirkula.unity.RuntimePermissionsReceiver" )
+		internal PermissionCallbackAsync( string[] permissions, AndroidRuntimePermissions.AsyncPermissionResult callback ) : base( "com.yasirkula.unity.RuntimePermissionsReceiver" )
 		{
 			this.permissions = permissions;
 			this.callback = callback;
@@ -26,7 +26,7 @@ namespace AndroidRuntimePermissionsNamespace
 			try
 			{
 				if( callback != null )
-					callback( permissions, AndroidRuntimePermissions.ProcessPermissionRequest( permissions, result ) );
+					callback( AndroidRuntimePermissions.ProcessPermissionRequestResult( permissions, result ) );
 			}
 			finally
 			{
