@@ -109,7 +109,7 @@ public class RuntimePermissions
 			final Fragment request = new RuntimePermissionsFragment( permissionReceiver );
 			request.setArguments( bundle );
 
-			( (Activity) context ).getFragmentManager().beginTransaction().add( 0, request ).commit();
+			( (Activity) context ).getFragmentManager().beginTransaction().add( 0, request ).commitAllowingStateLoss();
 		}
 	}
 }

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Created by yasirkula on 27.04.2018.
@@ -40,7 +39,7 @@ public class RuntimePermissionsFragment extends Fragment
 	{
 		super.onCreate( savedInstanceState );
 		if( permissionReceiver == null )
-			getFragmentManager().beginTransaction().remove( this ).commit();
+			onRequestPermissionsResult( PERMISSIONS_REQUEST_CODE, new String[0], new int[0] );
 		else
 		{
 			m_permissions = getArguments().getStringArray( PERMISSIONS );
@@ -59,7 +58,7 @@ public class RuntimePermissionsFragment extends Fragment
 		{
 			Log.e( "Unity", "Fragment data got reset while asking permissions!" );
 
-			getFragmentManager().beginTransaction().remove( this ).commit();
+			getFragmentManager().beginTransaction().remove( this ).commitAllowingStateLoss();
 			return;
 		}
 
@@ -113,7 +112,7 @@ public class RuntimePermissionsFragment extends Fragment
 			result += permissionsResult.get( i );
 
 		permissionReceiver.OnPermissionResult( result );
-		getFragmentManager().beginTransaction().remove( this ).commit();
+		getFragmentManager().beginTransaction().remove( this ).commitAllowingStateLoss();
 
 		// Resolves a bug in Unity 2019 where the calling activity
 		// doesn't resume automatically after the fragment finishes
