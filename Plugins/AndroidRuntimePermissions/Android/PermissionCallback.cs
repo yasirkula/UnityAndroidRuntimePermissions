@@ -15,6 +15,7 @@ namespace AndroidRuntimePermissionsNamespace
 			this.threadLock = threadLock;
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnPermissionResult( string result )
 		{
 			Result = result;

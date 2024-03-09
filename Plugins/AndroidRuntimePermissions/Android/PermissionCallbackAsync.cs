@@ -16,6 +16,7 @@ namespace AndroidRuntimePermissionsNamespace
 			callbackHelper = new GameObject( "PermissionCallbackHelper" ).AddComponent<PermissionCallbackHelper>();
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnPermissionResult( string result )
 		{
 			callbackHelper.CallOnMainThread( () => ExecuteCallback( result ) );

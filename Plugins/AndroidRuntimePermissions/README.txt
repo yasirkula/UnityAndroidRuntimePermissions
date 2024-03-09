@@ -1,4 +1,4 @@
-= Android Runtime Permissions (v1.2.1) =
+= Android Runtime Permissions (v1.2.2) =
 
 Documentation: https://github.com/yasirkula/UnityAndroidRuntimePermissions
 Example code: https://github.com/yasirkula/UnityAndroidRuntimePermissions#example-code
