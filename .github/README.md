@@ -34,7 +34,7 @@ Before we start, there is one optional step: by default, Unity shows a permissio
 <meta-data android:name="unityplayer.SkipPermissionsDialog" android:value="true" />
 ```
 
-**NOTE:** if your project doesn't have an AndroidManifest, you can copy Unity's default one from *C:\Program Files\Unity\Editor\Data\PlaybackEngines\AndroidPlayer* (it might be located in a subfolder, like '*Apk*') to *Assets/Plugins/Android* ([credit](http://answers.unity3d.com/questions/536095/how-to-write-an-androidmanifestxml-combining-diffe.html)).
+**NOTE:** if your project doesn't have an AndroidManifest, you can enable *Edit/Project Settings/Player/Publishing Settings/Custom Main Manifest*.
 
 You can use the following *static* functions of **AndroidRuntimePermissions** to manage runtime permissions:
 
@@ -42,16 +42,16 @@ You can use the following *static* functions of **AndroidRuntimePermissions** to
 
 `bool[] CheckPermissions( params string[] permissions )`: queries multiple permissions simultaneously. The returned array will contain one entry per queried permission
 
-`Permission RequestPermission( string permission )`: requests a permission from the user and returns the result. It is recommended to show a brief explanation before asking the permission so that user understands why the permission is needed and doesn't click Deny or worse, "Don't ask again". **Permission** is an enum that can take 3 values: 
+`void RequestPermissionAsync( string permission, Action<Permission> callback )`: requests a permission from the user and returns the result asynchronously. It is recommended to show a brief explanation before asking the permission so that user understands why the permission is needed and doesn't click Deny or worse, "Don't ask again". **Permission** is an enum that can take 3 values: 
 - **Granted**: permission is granted
 - **ShouldAsk**: permission is denied but we can ask the user for permission once again. As long as the user doesn't select "Don't ask again" while denying the permission, ShouldAsk is returned
 - **Denied**: we don't have permission and we can't ask the user for permission. In this case, user has to give the permission from app's Settings. This happens when user selects "Don't ask again" while denying the permission or when user is not allowed to give that permission (parental controls etc.)
 
-`Permission[] RequestPermissions( params string[] permissions )`: requests multiple permissions simultaneously
+`void RequestPermissionsAsync( string[] permissions, Action<Permission[]> callback )`: requests multiple permissions simultaneously
 
-`Task<Permission> RequestPermissionAsync( string permission )`: asynchronous version of *RequestPermission*. Unlike *RequestPermission*, this function doesn't freeze the app unnecessarily before the permission dialog is displayed
+`Task<Permission> RequestPermissionAsync( string permission )`: Task-based overload of RequestPermissionAsync
 
-`Task<Permission[]> RequestPermissionsAsync( string[] permissions )`: asynchronous version of *RequestPermissions*
+`Task<Permission[]> RequestPermissionsAsync( string[] permissions )`: Task-based overload of RequestPermissionsAsync
 
 `void OpenSettings()`: opens the settings for this app, from where the user can manually grant permission(s) in case a needed permission's state is *Permission.Denied*
 
@@ -69,7 +69,6 @@ void Update()
 async void RequestPermission()
 {
 	AndroidRuntimePermissions.Permission result = await AndroidRuntimePermissions.RequestPermissionAsync( "android.permission.ACCESS_FINE_LOCATION" );
-	//AndroidRuntimePermissions.Permission result = AndroidRuntimePermissions.RequestPermission( "android.permission.ACCESS_FINE_LOCATION" ); // Synchronous version (not recommended)
 	if( result == AndroidRuntimePermissions.Permission.Granted )
 		Debug.Log( "We have permission to access fine location!" );
 	else

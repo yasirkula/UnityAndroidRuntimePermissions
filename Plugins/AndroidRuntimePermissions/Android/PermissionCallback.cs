@@ -1,29 +1,26 @@
 ﻿#if UNITY_EDITOR || UNITY_ANDROID
-using System.Threading;
+using System;
 using UnityEngine;
 
 namespace AndroidRuntimePermissionsNamespace
 {
 	public class PermissionCallback : AndroidJavaProxy
 	{
-		private object threadLock;
-		public string Result { get; private set; }
+		private readonly string[] permissions;
+		private readonly Action<AndroidRuntimePermissions.Permission[]> callback;
+		private readonly PermissionCallbackHelper callbackHelper;
 
-		public PermissionCallback( object threadLock ) : base( "com.yasirkula.unity.RuntimePermissionsReceiver" )
+		internal PermissionCallback( string[] permissions, Action<AndroidRuntimePermissions.Permission[]> callback ) : base( "com.yasirkula.unity.RuntimePermissionsReceiver" )
 		{
-			Result = null;
-			this.threadLock = threadLock;
+			this.permissions = permissions;
+			this.callback = callback;
+			callbackHelper = PermissionCallbackHelper.Create( true );
 		}
 
 		[UnityEngine.Scripting.Preserve]
 		public void OnPermissionResult( string result )
 		{
-			Result = result;
-
-			lock( threadLock )
-			{
-				Monitor.Pulse( threadLock );
-			}
+			callbackHelper.CallOnMainThread( () => callback( AndroidRuntimePermissions.ProcessPermissionRequestResult( permissions, result ) ) );
 		}
 	}
 }

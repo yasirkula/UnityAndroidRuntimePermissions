@@ -80,7 +80,7 @@ public class RuntimePermissions
 		return result;
 	}
 
-	public static void RequestPermission( final String[] permissions, final Context context, final RuntimePermissionsReceiver permissionReceiver, final String lastCheckResult )
+	public static void RequestPermission( final String[] permissions, final Context context, final RuntimePermissionsReceiver permissionReceiver )
 	{
 		String permissionResult = CheckPermission( permissions, context );
 		if( Build.VERSION.SDK_INT < Build.VERSION_CODES.M )
@@ -92,7 +92,7 @@ public class RuntimePermissions
 		boolean shouldShowPermissionDialog = false;
 		for( int i = 0; i < permissions.length; i++ )
 		{
-			if( permissionResult.charAt( i ) == '0' && lastCheckResult.charAt( i ) != '0' )
+			if( permissionResult.charAt( i ) == '0' )
 			{
 				shouldShowPermissionDialog = true;
 				break;

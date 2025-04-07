@@ -3,9 +3,7 @@
 #endif
 
 using System;
-#if UNITY_2018_4_OR_NEWER && !ANDROID_RUNTIME_PERMISSIONS_DISABLE_ASYNC_FUNCTIONS
 using System.Threading.Tasks;
-#endif
 using UnityEngine;
 #if UNITY_ANDROID
 using AndroidRuntimePermissionsNamespace;
@@ -14,8 +12,6 @@ using AndroidRuntimePermissionsNamespace;
 public static class AndroidRuntimePermissions
 {
 	public enum Permission { Denied = 0, Granted = 1, ShouldAsk = 2 };
-
-	internal delegate void AsyncPermissionResult( Permission[] result );
 
 	#region Native Properties
 #if IS_ANDROID_PLATFORM
@@ -84,34 +80,25 @@ public static class AndroidRuntimePermissions
 #endif
 	}
 
-	public static Permission RequestPermission( string permission )
+	public static void RequestPermissionAsync( string permission, Action<Permission> callback )
 	{
-		return RequestPermissions( permission )[0];
-	}
-
-	public static Permission[] RequestPermissions( params string[] permissions )
-	{
-		ValidateArgument( permissions );
-
 #if IS_ANDROID_PLATFORM
-		PermissionCallback nativeCallback;
-		object threadLock = new object();
-		lock( threadLock )
-		{
-			nativeCallback = new PermissionCallback( threadLock );
-			AJC.CallStatic( "RequestPermission", permissions, Context, nativeCallback, new string( (char) ( '0' + (int) Permission.ShouldAsk ), permissions.Length ) );
-
-			if( nativeCallback.Result == null )
-				System.Threading.Monitor.Wait( threadLock );
-		}
-
-		return ProcessPermissionRequestResult( permissions, nativeCallback.Result );
+		RequestPermissionsAsync( new string[] { permission }, ( result ) => callback( result[0] ) );
 #else
-		return GetDummyResult( permissions, Permission.Granted );
+		callback( Permission.Granted );
 #endif
 	}
 
-#if UNITY_2018_4_OR_NEWER && !ANDROID_RUNTIME_PERMISSIONS_DISABLE_ASYNC_FUNCTIONS
+	public static void RequestPermissionsAsync( string[] permissions, Action<Permission[]> callback )
+	{
+#if IS_ANDROID_PLATFORM
+		PermissionCallback nativeCallback = new PermissionCallback( permissions, callback );
+		AJC.CallStatic( "RequestPermission", permissions, Context, nativeCallback );
+#else
+		callback( GetDummyResult( permissions, Permission.Granted ) );
+#endif
+	}
+
 	public static async Task<Permission> RequestPermissionAsync( string permission )
 	{
 		return ( await RequestPermissionsAsync( permission ) )[0];
@@ -119,19 +106,10 @@ public static class AndroidRuntimePermissions
 
 	public static Task<Permission[]> RequestPermissionsAsync( params string[] permissions )
 	{
-		ValidateArgument( permissions );
-
-#if IS_ANDROID_PLATFORM
 		TaskCompletionSource<Permission[]> tcs = new TaskCompletionSource<Permission[]>();
-		PermissionCallbackAsync nativeCallback = new PermissionCallbackAsync( permissions, ( result ) => tcs.SetResult( result ) );
-		AJC.CallStatic( "RequestPermission", permissions, Context, nativeCallback, new string( (char) ( '0' + (int) Permission.ShouldAsk ), permissions.Length ) );
-
+		RequestPermissionsAsync( permissions, ( result ) => tcs.SetResult( result ) );
 		return tcs.Task;
-#else
-		return Task.FromResult( GetDummyResult( permissions, Permission.Granted ) );
-#endif
 	}
-#endif
 	#endregion
 
 	#region Helper Functions
